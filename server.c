@@ -7,13 +7,15 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include "echo_io.h"
+
 #define ECHO_PORT 7
 #define MAX_INPUT_LENGTH 1024
 #define LISTEN_BACKLOG_SIZE 1024
 
 int port_number(int argc, char *argv[]) {
 	short int port = -1;
-    char      *endptr;
+	char      *endptr;
 
     if ( argc == 2 ) {
 		port = strtol(argv[1], &endptr, 0);
@@ -28,13 +30,19 @@ int port_number(int argc, char *argv[]) {
 	return port;
 }
 
+void log_message(char *str) {
+	printf("[DEBUG]: %s\n", str);
+	fflush(stdout);
+}
+
 int main(int argc, char *argv[]) {
-
-    short int port;
+	short int port;
 	int       listening_socket;
+	int       client_socket;
 	struct    sockaddr_in server_address;
+	char      buffer[MAX_INPUT_LENGTH];
 
-    /* 
+	/* 
 		Allow default echo port to be overridden at the command line 
 	*/
 	port = port_number(argc, argv);
@@ -47,21 +55,22 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	printf("[DEBUG]: PORT IS: %d", port);
+	/* Yeah, I got lazy here. */
+	printf("[DEBUG]: I will listen on port %d\n", port);
+	fflush(stdout);
 
     /*  Create the listening socket  */
-	if (listening_socket = socket(PF_INET6, SOCK_STREAM, 0) == -1) {
-		fprintf(stderr, "ECHO SERVER: Invalid arguments.\n");
+	listening_socket = socket(PF_INET, SOCK_STREAM, 0);
+	if (listening_socket < 0) {
+		fprintf(stderr, "ECHO SERVER: Failed to create socket.\n");
 		exit(EXIT_FAILURE);
 	}
 
     memset(&server_address, 0, sizeof(server_address));
-    server_address.sin_family      = PF_INET6;
+    server_address.sin_family      = PF_INET;
     server_address.sin_port        = htons(port);
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	/*  Bind our socket addresss to the 
-	    listening socket, and call listen()  */
 	if (bind(listening_socket, (struct sockaddr *) &server_address, sizeof(server_address)) < 0 ) {
 		fprintf(stderr, "ECHO SERVER: Failed to bind socket (%d).\n", errno);
 		exit(EXIT_FAILURE);
@@ -72,13 +81,30 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
     }
 
-/*    while ( 1 ) { */
-		/*  Wait for a connection, then accept() it  */
+    while ( 1 ) { 
 
-		/*  Retrieve an input line from the connected socket
-			then simply write it back to the same socket.     */
+		client_socket = accept(listening_socket, NULL, NULL);
+		if (client_socket < 0) {
+			fprintf(stderr, "ECHO SERVER: Failed to accept client.\n");
+			exit(EXIT_FAILURE);
+		}
 
-		/*  Close the connected socket  */
-/*    } */
+		log_message("Client connected!");
+
+
+		read_client_input(client_socket, buffer, MAX_INPUT_LENGTH-1);
+
+		log_message("Client says,");
+		log_message(buffer);
+
+		echo_to_client(client_socket, buffer, strlen(buffer));
+
+		if (close(client_socket) < 0) {
+			fprintf(stderr, "ECHO SERVER: Failed to close client socket.\n");
+			exit(EXIT_FAILURE);
+		}
+
+		log_message("Client disconnected.");
+    } 
 
 }
