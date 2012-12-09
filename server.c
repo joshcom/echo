@@ -66,10 +66,10 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-    memset(&server_address, 0, sizeof(server_address));
-    server_address.sin_family      = PF_INET;
-    server_address.sin_port        = htons(port);
-    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	memset(&server_address, 0, sizeof(server_address));
+	server_address.sin_family      = PF_INET;
+	server_address.sin_port        = htons(port);
+	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if (bind(listening_socket, (struct sockaddr *) &server_address, sizeof(server_address)) < 0 ) {
 		fprintf(stderr, "ECHO SERVER: Failed to bind socket (%d).\n", errno);
