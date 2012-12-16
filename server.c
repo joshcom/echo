@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 	printf("[DEBUG]: I will listen on port %d\n", port);
 	fflush(stdout);
 
-    /*  Create the listening socket  */
+	/*  Create the listening socket  */
 	listening_socket = socket(PF_INET, SOCK_STREAM, 0);
 	if (listening_socket < 0) {
 		fprintf(stderr, "ECHO SERVER: Failed to create socket.\n");
@@ -76,13 +76,12 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-    if (listen(listening_socket, LISTEN_BACKLOG_SIZE) < 0) {
+	if (listen(listening_socket, LISTEN_BACKLOG_SIZE) < 0) {
 		fprintf(stderr, "ECHO SERVER: Listen failed\n");
 		exit(EXIT_FAILURE);
-    }
+	}
 
-    while ( 1 ) { 
-
+	while ( 1 ) { 
 		client_socket = accept(listening_socket, NULL, NULL);
 		if (client_socket < 0) {
 			fprintf(stderr, "ECHO SERVER: Failed to accept client.\n");
@@ -105,6 +104,5 @@ int main(int argc, char *argv[]) {
 		}
 
 		log_message("Client disconnected.");
-    } 
-
+	}
 }
