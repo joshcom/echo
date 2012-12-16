@@ -1,12 +1,12 @@
 #include "echo_io.h"
 
 ssize_t read_client_input(int socket, void *buffer, size_t max_length) {
-    ssize_t n, read_character;
-    char    c, *buffer_ptr;
+	ssize_t n, read_character;
+	char    c, *buffer_ptr;
 
-    buffer_ptr = buffer;
+	buffer_ptr = buffer;
 
-    for ( n = 1; n < max_length; n++ ) {
+	for ( n = 1; n < max_length; n++ ) {
 		read_character = read(socket, &c, 1);
 		if (read_character == 1) {
 			*buffer_ptr = c;
